@@ -13,6 +13,27 @@
         android:theme="@style/Theme.PRM392_GROUP2_Skincare_Mobile"
         tools:targetApi="31">
         <activity
+            android:name=".ui.chat.ChatActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.billing.BillingActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.cart.CartActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.product_detail.ProductDetailActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.product_list.ProductListActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.auth.LoginActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.map.MapActivity"
+            android:exported="false" />
+        <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
