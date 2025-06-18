@@ -2,4 +2,12 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <!-- App Theme Colors -->
+    <color name="primaryGreen">#3A4D39</color>
+    <color name="primaryGreenDark">#2C3C2A</color>
+    <color name="accentLightGreen">#D1E2C4</color>
+    <color name="secondaryGreen">#739072</color>
+    <color name="backgroundCream">#F9F5F0</color>
+    <color name="accentRose">#FECDD3</color> <!-- bg-rose-200 -->
 </resources>
