@@ -51,7 +51,7 @@ class ChatActivity : AppCompatActivity() {
         // Please get the correct and active "Direct Chat Link" from your Tawk.to dashboard
         // and replace the URL below.
         //
-        val tawkToUrl = "https://tawk.to/chat/68517dd5e95763190f2370e3/1itv574cc" // <-- REPLACE WITH YOUR VALID URL
+        val tawkToUrl = "https://tawk.to/chat/68517dd5e95763190f2370e3/1itv574cc"
         Log.d(TAG, "Loading Tawk.to URL: $tawkToUrl")
         webView.loadUrl(tawkToUrl)
 

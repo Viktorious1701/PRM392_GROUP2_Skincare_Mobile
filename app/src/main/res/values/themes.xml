@@ -1,15 +1,14 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Base.Theme.PRM392_GROUP2_Skincare_Mobile" parent="Theme.Material3.DayNight.NoActionBar">
+    <style name="Base.Theme.PRM392_GROUP2_Skincare_Mobile" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
         <item name="colorPrimary">@color/primaryGreen</item>
         <item name="colorPrimaryVariant">@color/primaryGreenDark</item>
         <item name="colorSecondary">@color/secondaryGreen</item>
-        <item name="colorSecondaryVariant">@color/accentLightGreen</item>
-        <item name="android:colorBackground">@color/backgroundCream</item>
-        <item name="colorSurface">@color/white</item>
         <item name="colorOnPrimary">@color/white</item>
         <item name="colorOnSecondary">@color/black</item>
+        <item name="android:colorBackground">@color/backgroundCream</item>
+        <item name="colorSurface">@color/white</item>
         <item name="colorOnBackground">@color/black</item>
         <item name="colorOnSurface">@color/black</item>
     </style>

@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".ui.auth.LoginActivity">
+    tools:context=".ui.auth.SignUpActivity">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
@@ -21,7 +21,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_marginTop="32dp"
-        android:text="Login Screen\n(Friend's part to implement)"
+        android:text="Sign Up Screen\n(Friend's part to implement)"
         android:textAlignment="center"
         android:textSize="20sp" />
 
