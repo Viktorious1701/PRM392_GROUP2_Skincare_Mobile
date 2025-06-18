@@ -26,7 +26,8 @@
 
         <activity
             android:name=".ui.chat.ChatActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:hardwareAccelerated="true" />
         <activity
             android:name=".ui.billing.BillingActivity"
             android:exported="false" />
