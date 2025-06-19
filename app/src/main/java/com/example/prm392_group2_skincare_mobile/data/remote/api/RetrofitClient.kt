@@ -1,6 +1,8 @@
 package com.example.prm392_group2_skincare_mobile.data.remote.api
 
 import com.example.prm392_group2_skincare_mobile.data.remote.api.AuthApiService
+import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
@@ -25,5 +27,13 @@ object RetrofitClient {
 
     val chatAIApiService: ChatAIApiService by lazy {
         retrofit.create(ChatAIApiService::class.java)
+    }
+
+    val apiService: AuthApiService by lazy{
+        Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(AuthApiService::class.java)
     }
 }
