@@ -1,3 +1,4 @@
+// PRM392_GROUP2_Skincare_Mobile/app/build.gradle.kts
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -52,6 +53,9 @@ dependencies {
     // Navigation components
     implementation("androidx.navigation:navigation-fragment-ktx:2.7.7")
     implementation("androidx.navigation:navigation-ui-ktx:2.7.7")
+
+    // RecyclerView for lists
+    implementation("androidx.recyclerview:recyclerview:1.3.2")
 
     // retrofit
     implementation ("com.squareup.retrofit2:retrofit:2.9.0")

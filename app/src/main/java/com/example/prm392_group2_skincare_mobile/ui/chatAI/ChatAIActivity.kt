@@ -8,7 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.prm392_group2_skincare_mobile.data.remote.api.RetrofitClient
+import com.example.prm392_group2_skincare_mobile.data.remote.RetrofitClient
 import com.example.prm392_group2_skincare_mobile.data.repository.ChatAIRepository
 import com.example.prm392_group2_skincare_mobile.databinding.ActivityChatAiBinding
 import com.example.prm392_group2_skincare_mobile.data.model.ChatAIMessage

@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <network-security-config>
     <domain-config cleartextTrafficPermitted="true">
+        <!-- Allow cleartext traffic for Tawk.to chat service -->
         <domain includeSubdomains="true">tawk.to</domain>
+        <!-- Allow cleartext traffic for local development using the Android Emulator loopback address -->
+        <domain includeSubdomains="true">10.0.2.2</domain>
     </domain-config>
 </network-security-config>

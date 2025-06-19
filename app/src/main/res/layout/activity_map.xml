@@ -1,19 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<!-- Use a CoordinatorLayout as the root to manage interactions between views -->
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/map_container"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
     tools:context=".ui.map.MapActivity">
 
+    <!-- AppBarLayout is a container for the Toolbar that responds to scrolling -->
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+
+        <!-- Increase the height of the Toolbar for better touch targets and visuals -->
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimary"
+            app:title="Store Location"
+            app:titleTextColor="@color/white" />
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <!-- The MapView will now be positioned below the AppBarLayout -->
     <com.mapbox.maps.MapView
         android:id="@+id/mapView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:mapbox_cameraTargetLat="40.7128"
-        app:mapbox_cameraTargetLng="-74.0060"
-        app:mapbox_cameraZoom="9.0"
-        />
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        app:mapbox_cameraTargetLat="10.7769"
+        app:mapbox_cameraTargetLng="106.7009"
+        app:mapbox_cameraZoom="12.0" />
 
-</FrameLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -39,7 +39,7 @@ class ChatAIViewModel(private val repository: ChatAIRepository) : ViewModel() {
                 _isLoading.postValue(false)
                 if (response.isSuccessful && response.body() != null) {
                     val apiResponse = response.body()!!
-                    if (apiResponse.success && apiResponse.data != null) {
+                    if (apiResponse.isSuccess && apiResponse.data != null) {
                         addMessage(ChatAIMessage(apiResponse.data.reply, false))
                     } else {
                         val error = apiResponse.errors?.firstOrNull()?.description ?: "An unknown error occurred."
