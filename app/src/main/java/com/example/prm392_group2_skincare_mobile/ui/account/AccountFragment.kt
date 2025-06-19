@@ -11,6 +11,7 @@ import com.example.prm392_group2_skincare_mobile.ui.auth.LoginActivity
 import com.example.prm392_group2_skincare_mobile.ui.auth.SignUpActivity
 import com.example.prm392_group2_skincare_mobile.ui.chat.ChatActivity
 import com.example.prm392_group2_skincare_mobile.ui.map.MapActivity
+import com.example.prm392_group2_skincare_mobile.ui.chatAI.ChatAIActivity
 
 class AccountFragment : Fragment() {
 
@@ -39,6 +40,9 @@ class AccountFragment : Fragment() {
 
         binding.buttonMap.setOnClickListener {
             startActivity(Intent(activity, MapActivity::class.java))
+        }
+        binding.buttonChatAI.setOnClickListener {
+            startActivity(Intent(activity, ChatAIActivity::class.java))
         }
 
         return root

@@ -53,4 +53,11 @@
         android:backgroundTint="@color/secondaryGreen"
         android:textColor="@color/white"/>
 
+    <Button
+        android:id="@+id/button_chatAI"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Ask AI Assistant"
+        android:backgroundTint="@color/secondaryGreen"
+        android:textColor="@color/white"/>
 </LinearLayout>
