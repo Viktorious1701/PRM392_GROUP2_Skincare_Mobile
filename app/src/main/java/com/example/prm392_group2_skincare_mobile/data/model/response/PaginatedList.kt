@@ -1,4 +1,4 @@
-// PRM392_GROUP2_Skincare_Mobile/app/src/main/java/com/example/prm392_group2_skincare_mobile/data/model/response/PaginatedList.kt
+// app/src/main/java/com/example/prm392_group2_skincare_mobile/data/model/response/PaginatedList.kt
 package com.example.prm392_group2_skincare_mobile.data.model.response
 
 import com.google.gson.annotations.SerializedName

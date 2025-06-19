@@ -9,7 +9,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import com.example.prm392_group2_skincare_mobile.R
 import com.example.prm392_group2_skincare_mobile.data.model.request.LoginRequest
-import com.example.prm392_group2_skincare_mobile.data.remote.api.RetrofitClient
+import com.example.prm392_group2_skincare_mobile.data.remote.RetrofitClient
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.CoroutineScope
@@ -70,7 +70,7 @@ class LoginActivity : AppCompatActivity() {
         if (password.isEmpty()) {
             passwordLayout.error = "Password is required"
             isValid = false
-        } else if (password.length < 6) {
+        } else if (password.length < 5) {
             passwordLayout.error = "Password must be at least 6 characters"
             isValid = false
         }

@@ -1,17 +1,32 @@
 package com.example.prm392_group2_skincare_mobile.ui.product_detail
 
-import android.content.Intent
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuItem
-import android.widget.Button
+import android.widget.ImageView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.lifecycle.lifecycleScope
+import com.bumptech.glide.Glide
 import com.example.prm392_group2_skincare_mobile.R
-import com.example.prm392_group2_skincare_mobile.ui.cart.CartActivity
+import com.example.prm392_group2_skincare_mobile.data.model.response.CosmeticResponse
+import com.example.prm392_group2_skincare_mobile.data.remote.RetrofitClient
+import kotlinx.coroutines.launch
 
 class ProductDetailActivity : AppCompatActivity() {
+
+    private lateinit var productImage: ImageView
+    private lateinit var productName: TextView
+    private lateinit var productPrice: TextView
+    private lateinit var productRating: TextView
+    private lateinit var productBrand: TextView
+    private lateinit var productDescription: TextView
+    private lateinit var productIngredients: TextView
+    private lateinit var productInstructions: TextView
+    private lateinit var productMainUsage: TextView
+    private lateinit var productTexture: TextView
+    private lateinit var productOrigin: TextView
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_product_detail)
@@ -19,31 +34,83 @@ class ProductDetailActivity : AppCompatActivity() {
         val toolbar: Toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.title = "Product Detail"
+        supportActionBar?.title = "Product Details"
 
-        val addToCartButton: Button = findViewById(R.id.button_add_to_cart)
-        addToCartButton.setOnClickListener {
-            // In a real app, this would add the item to the cart data
-            Toast.makeText(this, "Product added to cart (simulation)", Toast.LENGTH_SHORT).show()
+        initViews()
+
+        val productId = intent.getStringExtra("PRODUCT_ID")
+        if (productId != null) {
+            loadProductDetails(productId)
+        } else {
+            showError("Product ID not found")
+            finish()
         }
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.toolbar_menu, menu)
+    private fun initViews() {
+        productImage = findViewById(R.id.iv_product_detail_image)
+        productName = findViewById(R.id.tv_product_detail_name)
+        productPrice = findViewById(R.id.tv_product_detail_price)
+        productRating = findViewById(R.id.tv_product_detail_rating)
+        productBrand = findViewById(R.id.tv_product_detail_brand)
+        productDescription = findViewById(R.id.tv_product_detail_description)
+        productIngredients = findViewById(R.id.tv_product_detail_ingredients)
+        productInstructions = findViewById(R.id.tv_product_detail_instructions)
+        productMainUsage = findViewById(R.id.tv_product_detail_main_usage)
+        productTexture = findViewById(R.id.tv_product_detail_texture)
+        productOrigin = findViewById(R.id.tv_product_detail_origin)
+    }
+
+    private fun loadProductDetails(productId: String) {
+        lifecycleScope.launch {
+            try {
+                val response = RetrofitClient.cosmeticApiService.getCosmeticById(productId)
+
+                if (response.isSuccessful) {
+                    val apiResponse = response.body()
+                    if (apiResponse?.isSuccess == true) {
+                        val product = apiResponse.data
+                        if (product != null) {
+                            displayProductDetails(product)
+                        }
+                    } else {
+                        showError("Failed to load product: ${apiResponse?.message}")
+                    }
+                } else {
+                    showError("Failed to load product: ${response.message()}")
+                }
+            } catch (e: Exception) {
+                showError("Error: ${e.message}")
+            }
+        }
+    }
+
+    private fun displayProductDetails(product: CosmeticResponse) {
+        productName.text = product.name
+        productPrice.text = "$${product.price}"
+        productRating.text = "★ ${product.rating?.let { "%.1f".format(it) } ?: "N/A"}"
+        productBrand.text = product.store?.name ?: "Unknown Brand"
+        productDescription.text = product.notice
+        productIngredients.text = product.ingredients
+        productInstructions.text = product.instructions
+        productMainUsage.text = product.mainUsage
+        productTexture.text = product.texture
+        productOrigin.text = product.origin
+
+        // Load product image
+        Glide.with(this)
+            .load(product.thumbnailUrl)
+            .placeholder(R.drawable.ic_launcher_background)
+            .error(R.drawable.ic_launcher_background)
+            .into(productImage)
+    }
+
+    private fun showError(message: String) {
+        Toast.makeText(this, message, Toast.LENGTH_LONG).show()
+    }
+
+    override fun onSupportNavigateUp(): Boolean {
+        finish()
         return true
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            android.R.id.home -> {
-                finish()
-                true
-            }
-            R.id.action_cart -> {
-                startActivity(Intent(this, CartActivity::class.java))
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
-        }
     }
 }

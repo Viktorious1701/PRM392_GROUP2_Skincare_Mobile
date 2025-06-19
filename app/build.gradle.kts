@@ -81,6 +81,12 @@ dependencies {
     // Glide for image loading
     implementation("com.github.bumptech.glide:glide:4.16.0")
 
+    // RecyclerView
+    implementation("androidx.recyclerview:recyclerview:1.3.2")
+
+    // Material Design
+    implementation("com.google.android.material:material:1.10.0")
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
