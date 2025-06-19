@@ -21,10 +21,10 @@ class ProductListActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.title = "Products"
 
-        val productButton: Button = findViewById(R.id.button_product_item)
-        productButton.setOnClickListener {
-            startActivity(Intent(this, ProductDetailActivity::class.java))
-        }
+//        val productButton: Button = findViewById(R.id.button_product_item)
+//        productButton.setOnClickListener {
+//            startActivity(Intent(this, ProductDetailActivity::class.java))
+//        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
