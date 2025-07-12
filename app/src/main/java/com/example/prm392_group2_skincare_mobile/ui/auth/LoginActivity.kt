@@ -2,116 +2,90 @@ package com.example.prm392_group2_skincare_mobile.ui.auth
 
 import android.os.Bundle
 import android.view.MenuItem
-import android.widget.Button
-import android.widget.TextView
+import android.view.View
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
-import com.example.prm392_group2_skincare_mobile.R
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import com.example.prm392_group2_skincare_mobile.data.local.preferences.UserPreferences
 import com.example.prm392_group2_skincare_mobile.data.model.request.LoginRequest
 import com.example.prm392_group2_skincare_mobile.data.remote.RetrofitClient
-import com.google.android.material.textfield.TextInputEditText
-import com.google.android.material.textfield.TextInputLayout
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import retrofit2.awaitResponse
+import com.example.prm392_group2_skincare_mobile.data.remote.api.AuthApiService
+import com.example.prm392_group2_skincare_mobile.data.repository.AuthRepository
+import com.example.prm392_group2_skincare_mobile.databinding.ActivityLoginBinding
 
 class LoginActivity : AppCompatActivity() {
 
-    private lateinit var emailLayout: TextInputLayout
-    private lateinit var passwordLayout: TextInputLayout
-    private lateinit var emailInput: TextInputEditText
-    private lateinit var passwordInput: TextInputEditText
-    private lateinit var loginButton: Button
-    private lateinit var forgotPassword: TextView
+    private lateinit var binding: ActivityLoginBinding
+    private val authViewModel: AuthViewModel by viewModels {
+        object : ViewModelProvider.Factory {
+            override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                val authService = RetrofitClient.create(AuthApiService::class.java)
+                val authRepository = AuthRepository(authService)
+                @Suppress("UNCHECKED_CAST")
+                return AuthViewModel(authRepository) as T
+            }
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_login)
+        binding = ActivityLoginBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        val toolbar: Toolbar = findViewById(R.id.toolbar)
-        setSupportActionBar(toolbar)
+        setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.title = "Login"
 
-        emailLayout = findViewById(R.id.email_layout)
-        passwordLayout = findViewById(R.id.password_layout)
-        emailInput = findViewById(R.id.email_input)
-        passwordInput = findViewById(R.id.password_input)
-        loginButton = findViewById(R.id.login_button)
-        forgotPassword = findViewById(R.id.forgot_password)
+        setupObservers()
 
-        loginButton.setOnClickListener {
+        binding.loginButton.setOnClickListener {
             validateAndLogin()
         }
     }
 
-    private fun validateAndLogin() {
-        val email = emailInput.text.toString().trim()
-        val password = passwordInput.text.toString().trim()
-
-        // Reset errors
-        emailLayout.error = null
-        passwordLayout.error = null
-
-        // Validation
-        var isValid = true
-
-        if (email.isEmpty()) {
-            emailLayout.error = "Email is required"
-            isValid = false
-        } else if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            emailLayout.error = "Invalid email format"
-            isValid = false
+    private fun setupObservers() {
+        authViewModel.isLoading.observe(this) { isLoading ->
+            binding.loadingIndicator.visibility = if (isLoading) View.VISIBLE else View.GONE
+            binding.loginButton.isEnabled = !isLoading
         }
 
-        if (password.isEmpty()) {
-            passwordLayout.error = "Password is required"
+        authViewModel.loginResult.observe(this) { result ->
+            result.onSuccess { loginResponse ->
+                Toast.makeText(this, "Login successful! Welcome ${loginResponse.userName}", Toast.LENGTH_LONG).show()
+                // Save tokens and user data
+                UserPreferences.saveTokens(loginResponse)
+                // Close the activity and return to the previous screen
+                finish()
+            }.onFailure { exception ->
+                Toast.makeText(this, "Login failed: ${exception.message}", Toast.LENGTH_LONG).show()
+            }
+        }
+    }
+
+    private fun validateAndLogin() {
+        val username = binding.usernameInput.text.toString().trim()
+        val password = binding.passwordInput.text.toString().trim()
+
+        binding.usernameLayout.error = null
+        binding.passwordLayout.error = null
+
+        var isValid = true
+        if (username.isEmpty()) {
+            binding.usernameLayout.error = "Username is required"
             isValid = false
-        } else if (password.length < 5) {
-            passwordLayout.error = "Password must be at least 6 characters"
+        }
+        if (password.isEmpty()) {
+            binding.passwordLayout.error = "Password is required"
             isValid = false
         }
 
         if (isValid) {
-            if (isValid) {
-                loginButton.isEnabled = false // Disable button to prevent multiple clicks
-                performLogin(email, password)
-            }
+            val loginRequest = LoginRequest(userName = username, password = password)
+            authViewModel.login(loginRequest)
         }
     }
-
-    private fun performLogin(email: String, password: String) {
-        CoroutineScope(Dispatchers.Main).launch{
-            try {
-                val request = LoginRequest(email, password)
-                val response = withContext(Dispatchers.IO) {
-                    RetrofitClient.apiService.login(request).awaitResponse()
-                }
-
-                if (response.isSuccessful) {
-                    val loginResponse = response.body()
-                    if (loginResponse?.token != null) {
-                        Toast.makeText(this@LoginActivity, "Login successful!", Toast.LENGTH_SHORT).show()
-                        // TODO: Save token and navigate to next screen
-                        // Example: startActivity(Intent(this@LoginActivity, MainActivity::class.java))
-                        // finish()
-                    } else {
-                        Toast.makeText(this@LoginActivity, "Login failed", Toast.LENGTH_SHORT).show()
-                    }
-                } else {
-                    Toast.makeText(this@LoginActivity, "Error: ${response.message()}", Toast.LENGTH_SHORT).show()
-                }
-            } catch (e: Exception) {
-                Toast.makeText(this@LoginActivity, "Network error: ${e.message}", Toast.LENGTH_SHORT).show()
-            } finally {
-                loginButton.isEnabled = true // Re-enable button
-            }
-        }
-    }
-
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == android.R.id.home) {

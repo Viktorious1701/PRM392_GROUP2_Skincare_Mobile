@@ -1,5 +1,6 @@
 package com.example.prm392_group2_skincare_mobile.data.remote
 
+import com.example.prm392_group2_skincare_mobile.data.local.preferences.UserPreferences
 import com.example.prm392_group2_skincare_mobile.data.remote.api.AuthApiService
 import com.example.prm392_group2_skincare_mobile.data.remote.api.ChatAIApiService
 import com.example.prm392_group2_skincare_mobile.data.remote.api.CosmeticApiService
@@ -9,6 +10,7 @@ import com.google.gson.JsonDeserializationContext
 import com.google.gson.JsonDeserializer
 import com.google.gson.JsonElement
 import com.google.gson.JsonParseException
+import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -23,10 +25,9 @@ import javax.net.ssl.TrustManager
 import javax.net.ssl.X509TrustManager
 
 object RetrofitClient {
-    // For local development with Android Emulator, use 10.0.2.2 to connect to your PC's localhost.
-    // The backend is running in a Docker container that exposes port 8080 to the host's port 8082.
-    // Therefore, the emulator must connect to port 8082 on the host.
-    private const val BASE_URL = "https://10.0.2.2:5051/"
+    // The backend's identity service requires HTTPS.
+    // Changed to the HTTPS endpoint (port 8081) for the local development server.
+    private const val BASE_URL = "http://10.0.2.2:8082/"
 
     // Custom Date Deserializer
     class DateDeserializer : JsonDeserializer<Date> {
@@ -54,7 +55,7 @@ object RetrofitClient {
                     // Continue to next format
                 }
             }
-            
+
             throw JsonParseException("Unable to parse date: $dateString")
         }
     }
@@ -64,6 +65,30 @@ object RetrofitClient {
         .registerTypeAdapter(Date::class.java, DateDeserializer())
         .setLenient()
         .create()
+
+    // Interceptor to add the Authorization token to requests
+    private val authInterceptor = Interceptor { chain ->
+        val originalRequest = chain.request()
+        val accessToken = UserPreferences.getAccessToken()
+
+        // Do not add Authorization header to login/register requests
+        if (originalRequest.url.encodedPath.contains("/api/auth/")) {
+            return@Interceptor chain.proceed(originalRequest)
+        }
+
+        // If no token is available, proceed with the original request
+        if (accessToken == null) {
+            return@Interceptor chain.proceed(originalRequest)
+        }
+
+        // Add the Authorization header to the request
+        val newRequest = originalRequest.newBuilder()
+            .header("Authorization", "Bearer $accessToken")
+            .build()
+
+        chain.proceed(newRequest)
+    }
+
 
     // This custom OkHttpClient is built to trust all certificates.
     // This is necessary for connecting to a local server with a self-signed dev certificate.
@@ -85,35 +110,29 @@ object RetrofitClient {
             // Create an ssl socket factory with our all-trusting manager
             val sslSocketFactory = sslContext.socketFactory
 
-            // Create a logging interceptor
+            // Create a logging interceptor for debugging network requests
             val loggingInterceptor = HttpLoggingInterceptor().apply {
                 level = HttpLoggingInterceptor.Level.BODY
             }
 
-            // Build the OkHttpClient with the SSL socket factory AND the logger
+            // Build the OkHttpClient with the custom SSL socket factory, the logger, and the auth interceptor
             OkHttpClient.Builder()
                 .sslSocketFactory(sslSocketFactory, trustAllCerts[0] as X509TrustManager)
-                .hostnameVerifier { _, _ -> true }
-                .addInterceptor(loggingInterceptor) // Add the logger here
+                .hostnameVerifier { _, _ -> true } // Trust all hostnames
+                .addInterceptor(loggingInterceptor)
+                .addInterceptor(authInterceptor) // Add our auth interceptor
                 .build()
         } catch (e: Exception) {
             throw RuntimeException(e)
         }
     }
 
-    private val loggingInterceptor = HttpLoggingInterceptor().apply {
-        level = HttpLoggingInterceptor.Level.BODY
-    }
-
-    private val httpClient = OkHttpClient.Builder()
-        .addInterceptor(loggingInterceptor)
-        .build()
 
     private val retrofit: Retrofit by lazy {
         Retrofit.Builder()
             .baseUrl(BASE_URL)
-            .client(okHttpClient)
-            .addConverterFactory(GsonConverterFactory.create(gson)) // Use custom Gson
+            .client(okHttpClient) // Use the custom OkHttpClient
+            .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
     }
 
@@ -122,16 +141,16 @@ object RetrofitClient {
         return retrofit.create(service)
     }
 
-    // Existing services for backward compatibility
+    // Service instances
     val chatAIApiService: ChatAIApiService by lazy {
-        retrofit.create(ChatAIApiService::class.java)
+        create(ChatAIApiService::class.java)
     }
 
     val apiService: AuthApiService by lazy {
-        retrofit.create(AuthApiService::class.java)
+        create(AuthApiService::class.java)
     }
 
-    val cosmeticApiService : CosmeticApiService by lazy {
-        retrofit.create(CosmeticApiService::class.java)
+    val cosmeticApiService: CosmeticApiService by lazy {
+        create(CosmeticApiService::class.java)
     }
 }
