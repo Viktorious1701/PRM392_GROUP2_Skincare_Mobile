@@ -31,7 +31,6 @@ class PaymentActivity : AppCompatActivity() {
 
         val paymentUrl = intent.getStringExtra("PAYMENT_URL")
         if (paymentUrl != null) {
-            // Log the URL that is being loaded initially.
             Log.d("PaymentActivity", "Loading Payment URL: $paymentUrl")
             webView.loadUrl(paymentUrl)
         } else {
@@ -49,22 +48,30 @@ class PaymentActivity : AppCompatActivity() {
             setSupportZoom(true)
             builtInZoomControls = true
             displayZoomControls = false
-            // Allow mixed content for VNPay
+            // Allow mixed content for VNPay sandbox environment
             mixedContentMode = android.webkit.WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
         }
 
         webView.webViewClient = object : WebViewClient() {
             override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
                 val url = request?.url.toString()
-                Log.d("PaymentActivity", "Loading URL: $url")
+                Log.d("PaymentActivity", "URL Loading: $url")
 
-                // Intercept the custom return URL from VNPay.
-                if (url.startsWith("https://defleur.app/payment/return")) {
-                    handlePaymentReturn(url)
-                    return true // Prevent the WebView from trying to load this custom URL.
+                // Intercept the custom success URL from the backend.
+                if (url.startsWith("defleur-app://payment/success")) {
+                    handlePaymentSuccess(url)
+                    return true // URL handled, so stop the WebView from loading it.
                 }
 
-                return false // Allow the WebView to handle all other URLs.
+                // Intercept the custom failure URL from the backend.
+                if (url.startsWith("defleur-app://payment/failure")) {
+                    handlePaymentFailure(url)
+                    return true // URL handled.
+                }
+
+                // Allow the WebView to load all other URLs, including the initial payment page
+                // and the redirect to our backend's callback.
+                return false
             }
 
             override fun onReceivedError(view: WebView?, request: WebResourceRequest?, error: WebResourceError?) {
@@ -81,13 +88,9 @@ class PaymentActivity : AppCompatActivity() {
                 // Inject JavaScript to fix a 'timer is not defined' error on the VNPay sandbox page.
                 val jsCode = """
                     javascript:(function() {
-                        // Define 'timer' on the window object to prevent a ReferenceError from VNPay's script.
                         if (typeof timer === 'undefined') {
                             window.timer = null;
                         }
-                        
-                        // The VNPay page also has a jQuery function that can fail.
-                        // This prevents it from crashing the WebView.
                         if (typeof jQuery !== 'undefined') {
                             jQuery(document).ready(function($) {
                                 if (typeof updateTime === 'function') {
@@ -101,67 +104,42 @@ class PaymentActivity : AppCompatActivity() {
                         }
                     })();
                 """
-
                 view?.evaluateJavascript(jsCode, null)
             }
         }
     }
 
-    private fun handlePaymentReturn(url: String) {
-        try {
-            val uri = Uri.parse(url)
-            val responseCode = uri.getQueryParameter("vnp_ResponseCode")
-            val transactionStatus = uri.getQueryParameter("vnp_TransactionStatus")
-            val orderId = uri.getQueryParameter("vnp_TxnRef")
-            val amount = uri.getQueryParameter("vnp_Amount")
-
-            Log.d("PaymentActivity", "Payment result - Code: $responseCode, Status: $transactionStatus, OrderId: $orderId")
-
-            when (responseCode) {
-                "00" -> {
-                    // Payment successful
-                    Toast.makeText(this, "Payment successful!", Toast.LENGTH_LONG).show()
-
-                    // Send result back to previous activity
-                    val resultIntent = Intent().apply {
-                        putExtra("PAYMENT_SUCCESS", true)
-                        putExtra("ORDER_ID", orderId)
-                        putExtra("TRANSACTION_STATUS", transactionStatus)
-                        putExtra("AMOUNT", amount)
-                    }
-                    setResult(RESULT_OK, resultIntent)
-                    finish()
-                }
-                "24" -> {
-                    // Transaction cancelled
-                    Toast.makeText(this, "Payment cancelled", Toast.LENGTH_SHORT).show()
-                    setResult(RESULT_CANCELED)
-                    finish()
-                }
-                else -> {
-                    // Payment failed
-                    Toast.makeText(this, "Payment failed. Code: $responseCode", Toast.LENGTH_LONG).show()
-                    setResult(RESULT_CANCELED)
-                    finish()
-                }
-            }
-        } catch (e: Exception) {
-            Log.e("PaymentActivity", "Error handling payment return", e)
-            Toast.makeText(this, "Error processing payment result", Toast.LENGTH_SHORT).show()
-            setResult(RESULT_CANCELED)
-            finish()
+    private fun handlePaymentSuccess(url: String) {
+        val uri = Uri.parse(url)
+        val orderId = uri.getQueryParameter("orderId")
+        Toast.makeText(this, "Payment for order $orderId successful!", Toast.LENGTH_LONG).show()
+        val resultIntent = Intent().apply {
+            putExtra("PAYMENT_SUCCESS", true)
+            putExtra("ORDER_ID", orderId)
         }
+        setResult(RESULT_OK, resultIntent)
+        finish()
+    }
+
+    private fun handlePaymentFailure(url: String) {
+        val uri = Uri.parse(url)
+        val message = uri.getQueryParameter("message") ?: "Payment failed"
+        Toast.makeText(this, "Payment failed: $message", Toast.LENGTH_LONG).show()
+        setResult(RESULT_CANCELED)
+        finish()
     }
 
     override fun onBackPressed() {
         if (webView.canGoBack()) {
             webView.goBack()
         } else {
+            setResult(RESULT_CANCELED)
             super.onBackPressed()
         }
     }
 
     override fun onSupportNavigateUp(): Boolean {
+        setResult(RESULT_CANCELED)
         finish()
         return true
     }

@@ -8,10 +8,12 @@ import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.example.prm392_group2_skincare_mobile.MainActivity
 import com.example.prm392_group2_skincare_mobile.R
 import com.example.prm392_group2_skincare_mobile.data.model.request.CreateOnlineOrderRequest
 import com.example.prm392_group2_skincare_mobile.data.model.response.District
@@ -47,6 +49,30 @@ class BillingActivity : AppCompatActivity() {
                 @Suppress("UNCHECKED_CAST")
                 return GHNViewModel(repository) as T
             }
+        }
+    }
+
+    // Modern way to handle activity results, replacing onActivityResult.
+    private val paymentActivityResultLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        // This callback executes when PaymentActivity finishes.
+        if (result.resultCode == RESULT_OK) {
+            val paymentSuccess = result.data?.getBooleanExtra("PAYMENT_SUCCESS", false) ?: false
+            if (paymentSuccess) {
+                Toast.makeText(this, "Payment completed! Your order is being processed.", Toast.LENGTH_LONG).show()
+                // Clear the back stack and return to the main activity.
+                val intent = Intent(this, MainActivity::class.java).apply {
+                    flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
+                }
+                startActivity(intent)
+                finish()
+            } else {
+                Toast.makeText(this, "Payment verification failed.", Toast.LENGTH_SHORT).show()
+            }
+        } else {
+            // Handle RESULT_CANCELED from PaymentActivity (e.g., user pressed back).
+            Toast.makeText(this, "Payment was cancelled or failed.", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -119,17 +145,22 @@ class BillingActivity : AppCompatActivity() {
             result.onSuccess { orderResponse ->
                 val paymentUrl = orderResponse.paymentUrl
                 if (!paymentUrl.isNullOrEmpty()) {
+                    // Launch PaymentActivity using the modern launcher to get a result back.
                     val intent = Intent(this, PaymentActivity::class.java).apply {
                         putExtra("PAYMENT_URL", paymentUrl)
                     }
-                    startActivity(intent)
-                    finish()
+                    paymentActivityResultLauncher.launch(intent)
                 } else {
-                    Toast.makeText(this, "Order created successfully!", Toast.LENGTH_LONG).show()
+                    // Handle non-online payment methods like COD.
+                    Toast.makeText(this, "Order placed successfully!", Toast.LENGTH_LONG).show()
+                    val intent = Intent(this, MainActivity::class.java).apply {
+                        flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
+                    }
+                    startActivity(intent)
                     finish()
                 }
             }.onFailure { exception ->
-                Toast.makeText(this, "Error: ${exception.message}", Toast.LENGTH_LONG).show()
+                Toast.makeText(this, "Error creating order: ${exception.message}", Toast.LENGTH_LONG).show()
             }
         }
     }
@@ -165,33 +196,7 @@ class BillingActivity : AppCompatActivity() {
 
         orderViewModel.createOrder(request)
     }
-    companion object {
-        private const val PAYMENT_REQUEST_CODE = 1001
-    }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-
-        if (requestCode == PAYMENT_REQUEST_CODE) {
-            when (resultCode) {
-                RESULT_OK -> {
-                    val paymentSuccess = data?.getBooleanExtra("PAYMENT_SUCCESS", false) ?: false
-                    val orderId = data?.getStringExtra("ORDER_ID")
-
-                    if (paymentSuccess) {
-                        Toast.makeText(this, "Payment completed successfully!", Toast.LENGTH_LONG).show()
-                        // Navigate to success page or main activity
-                        finish()
-                    } else {
-                        Toast.makeText(this, "Payment verification failed", Toast.LENGTH_SHORT).show()
-                    }
-                }
-                RESULT_CANCELED -> {
-                    Toast.makeText(this, "Payment cancelled or failed", Toast.LENGTH_SHORT).show()
-                }
-            }
-        }
-    }
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == android.R.id.home) {
             finish()
