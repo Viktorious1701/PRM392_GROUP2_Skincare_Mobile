@@ -13,6 +13,8 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.example.prm392_group2_skincare_mobile.R
 import com.example.prm392_group2_skincare_mobile.data.model.response.CosmeticResponse
+import java.text.NumberFormat
+import java.util.Locale
 
 class ProductListAdapter(
     private val onItemClick: (CosmeticResponse) -> Unit
@@ -50,12 +52,12 @@ class ProductListAdapter(
 
         fun bind(cosmetic: CosmeticResponse) {
             Log.d(TAG, "Binding cosmetic: ${cosmetic.name}, price: ${cosmetic.price}")
-            
-            // Cache formatted strings to avoid repeated operations
-            val formattedPrice = "$%.2f".format(cosmetic.price)
+
+            // Format price with commas for better readability in VND
+            val formattedPrice = String.format("%,.0f VND", cosmetic.price)
             val formattedRating = cosmetic.rating?.let { "★ %.1f".format(it) } ?: "★ N/A"
             val brandName = cosmetic.store?.name ?: "Unknown Brand"
-            
+
             productName.text = cosmetic.name
             productPrice.text = formattedPrice
             productRating.text = formattedRating
@@ -65,7 +67,7 @@ class ProductListAdapter(
 
             // Optimized Glide loading
             val imageUrl = cosmetic.thumbnailUrl ?: cosmetic.cosmeticImages?.firstOrNull()?.imageUrl
-            
+
             Glide.with(itemView.context)
                 .load(imageUrl)
                 .placeholder(R.drawable.ic_launcher_background)

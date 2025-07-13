@@ -1,78 +1,111 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<!--
+  Use CoordinatorLayout as the root to allow for more complex interactions
+  between views, such as the AppBar and scrolling content.
+  'fitsSystemWindows="true"' is crucial as it automatically adjusts the view's
+  padding to avoid overlapping with system UI like the status bar.
+-->
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
+    android:fitsSystemWindows="true"
     tools:context=".ui.cart.CartActivity">
 
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary"
-        app:titleTextColor="@color/white"
-        app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar" />
-
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1">
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rv_cart_items"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:padding="8dp"
-            tools:listitem="@layout/item_cart"/>
-
-        <ProgressBar
-            android:id="@+id/progress_bar_cart"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:visibility="gone"/>
-
-        <TextView
-            android:id="@+id/tv_empty_cart"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="Your cart is empty"
-            android:textSize="18sp"
-            android:visibility="gone"/>
-    </FrameLayout>
-
-    <com.google.android.material.card.MaterialCardView
+    <!--
+      AppBarLayout is a container for the Toolbar that enables it
+      to react to scrolling events and position itself correctly at the top.
+    -->
+    <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:cardElevation="8dp"
-        android:layout_gravity="bottom">
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
 
-        <LinearLayout
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="16dp">
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimary"
+            app:titleTextColor="@color/white"
+            app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar" />
 
-            <TextView
-                android:id="@+id/tv_total_price"
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <!--
+      The main content area is now a RelativeLayout.
+      'app:layout_behavior' positions this entire layout below the AppBarLayout.
+    -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <FrameLayout
+            android:id="@+id/cart_content_frame"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_above="@+id/checkout_summary_card">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_cart_items"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:padding="8dp"
+                tools:listitem="@layout/item_cart"/>
+
+            <ProgressBar
+                android:id="@+id/progress_bar_cart"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Total: $0.00"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                android:layout_gravity="end"/>
+                android:layout_gravity="center"
+                android:visibility="gone"/>
 
-            <Button
-                android:id="@+id/button_checkout"
+            <TextView
+                android:id="@+id/tv_empty_cart"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="Your cart is empty"
+                android:textSize="18sp"
+                android:visibility="gone"/>
+        </FrameLayout>
+
+        <!--
+          The checkout summary card is aligned to the bottom of the parent RelativeLayout.
+        -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/checkout_summary_card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            app:cardElevation="8dp">
+
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="Proceed to Checkout"/>
-        </LinearLayout>
-    </com.google.android.material.card.MaterialCardView>
+                android:orientation="vertical"
+                android:padding="16dp">
 
-</LinearLayout>
+                <TextView
+                    android:id="@+id/tv_total_price"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Total: 0 VND"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:layout_gravity="end"/>
+
+                <Button
+                    android:id="@+id/button_checkout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="Proceed to Checkout"/>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+    </RelativeLayout>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

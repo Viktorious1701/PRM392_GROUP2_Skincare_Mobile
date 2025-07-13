@@ -1,41 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
+    android:fitsSystemWindows="true"
     tools:context=".ui.chat.ChatActivity">
 
-    <!-- A Toolbar provides a standard app bar with a title and back navigation -->
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar"
+    <!-- AppBarLayout correctly positions the Toolbar below the status bar -->
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appbar"
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="@color/primaryGreen"
-        app:title="Customer Support"
-        app:titleTextColor="@color/white"
-        android:layout_alignParentTop="true" />
+        android:layout_height="wrap_content"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
 
-    <!-- A thin ProgressBar at the top to show loading progress -->
-    <ProgressBar
-        android:id="@+id/progress_bar"
-        style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="match_parent"
-        android:layout_height="4dp"
-        android:layout_below="@id/toolbar"
-        android:indeterminate="false"
-        android:max="100"
-        android:progress="0"
-        android:progressTint="@color/accentLightGreen"
-        android:visibility="gone" />
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="@color/primaryGreen"
+            app:title="Customer Support"
+            app:titleTextColor="@color/white" />
 
-    <!-- The WebView will fill the remaining space -->
-    <WebView
-        android:id="@+id/chat_webview"
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <!-- This FrameLayout will be positioned below the AppBarLayout -->
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/toolbar" />
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-</RelativeLayout>
+        <!-- The WebView fills the content area -->
+        <WebView
+            android:id="@+id/chat_webview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <!-- The ProgressBar overlays the WebView at the top of the content area -->
+        <ProgressBar
+            android:id="@+id/progress_bar"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="4dp"
+            android:indeterminate="false"
+            android:max="100"
+            android:progress="0"
+            android:progressTint="@color/accentLightGreen"
+            android:visibility="gone"
+            tools:visibility="visible"/>
+
+    </FrameLayout>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

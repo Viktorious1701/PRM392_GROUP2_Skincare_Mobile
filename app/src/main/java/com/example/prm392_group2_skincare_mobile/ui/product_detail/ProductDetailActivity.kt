@@ -24,6 +24,7 @@ import com.example.prm392_group2_skincare_mobile.data.repository.CartRepository
 import com.example.prm392_group2_skincare_mobile.ui.auth.LoginActivity
 import com.example.prm392_group2_skincare_mobile.ui.cart.CartViewModel
 import com.example.prm392_group2_skincare_mobile.ui.map.MapActivity
+import com.google.android.material.appbar.CollapsingToolbarLayout
 import kotlinx.coroutines.launch
 
 class ProductDetailActivity : AppCompatActivity() {
@@ -41,6 +42,9 @@ class ProductDetailActivity : AppCompatActivity() {
     private lateinit var productOrigin: TextView
     private lateinit var viewOnMapButton: Button
     private lateinit var addToCartButton: Button
+    private lateinit var toolbar: Toolbar
+    private lateinit var collapsingToolbar: CollapsingToolbarLayout
+
 
     private var currentProduct: CosmeticResponse? = null
 
@@ -60,12 +64,12 @@ class ProductDetailActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_product_detail)
 
-        val toolbar: Toolbar = findViewById(R.id.toolbar)
+        initViews()
+
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.title = "Product Details"
+        supportActionBar?.title = " " // Set an empty title initially
 
-        initViews()
         setupObservers()
 
         val productId = intent.getStringExtra("PRODUCT_ID")
@@ -78,6 +82,8 @@ class ProductDetailActivity : AppCompatActivity() {
     }
 
     private fun initViews() {
+        toolbar = findViewById(R.id.toolbar)
+        collapsingToolbar = findViewById(R.id.collapsing_toolbar)
         productImage = findViewById(R.id.iv_product_detail_image)
         productName = findViewById(R.id.tv_product_detail_name)
         productPrice = findViewById(R.id.tv_product_detail_price)
@@ -126,8 +132,9 @@ class ProductDetailActivity : AppCompatActivity() {
     }
 
     private fun displayProductDetails(product: CosmeticResponse) {
+        collapsingToolbar.title = product.name
         productName.text = product.name
-        productPrice.text = "$${product.price}"
+        productPrice.text = String.format("%,.0f VND", product.price)
         productRating.text = "★ ${product.rating?.let { "%.1f".format(it) } ?: "N/A"}"
         productBrand.text = product.store?.name ?: "Unknown Brand"
         productDescription.text = product.notice

@@ -24,7 +24,7 @@ class CartAdapter(private var items: List<CartItem>) : RecyclerView.Adapter<Cart
         // Binds a CartItem object to the views.
         fun bind(item: CartItem) {
             nameView.text = item.cosmeticName
-            priceView.text = String.format("$%.2f", item.price)
+            priceView.text = String.format("%,.0f VND", item.price)
             quantityView.text = String.format("Qty: %d", item.quantity)
             // Use Glide to load the product image.
             Glide.with(itemView.context).load(item.thumbnailUrl).into(imageView)

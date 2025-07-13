@@ -85,8 +85,8 @@ class CartActivity : AppCompatActivity() {
                     // Update the adapter with the new list of items
                     cartAdapter.updateItems(cartResponse.items)
                 }
-                // Update the total price
-                binding.tvTotalPrice.text = String.format("Total: $%.2f", cartResponse.totalPrice)
+                // Update the total price, formatted for VND
+                binding.tvTotalPrice.text = String.format("Total: %,.0f VND", cartResponse.totalPrice)
             }.onFailure { exception ->
                 // Show an error message if fetching the cart fails
                 Toast.makeText(this, "Error: ${exception.message}", Toast.LENGTH_LONG).show()
