@@ -26,6 +26,18 @@
         android:enableOnBackInvokedCallback="true"
         tools:targetApi="31">
 
+        <!-- Declare the new PaymentActivity with an intent filter to handle the custom return URL -->
+        <activity
+            android:name=".ui.payment.PaymentActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <!-- This tells the OS that your app can handle this specific URL -->
+                <data android:scheme="https" android:host="defleur.app" android:path="/payment/return" />
+            </intent-filter>
+        </activity>
         <activity
             android:name=".ui.auth.SignUpActivity"
             android:exported="false" />

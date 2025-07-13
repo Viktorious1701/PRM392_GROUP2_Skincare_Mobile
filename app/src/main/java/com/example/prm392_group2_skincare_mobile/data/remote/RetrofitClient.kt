@@ -2,9 +2,7 @@
 package com.example.prm392_group2_skincare_mobile.data.remote
 
 import com.example.prm392_group2_skincare_mobile.data.local.preferences.UserPreferences
-import com.example.prm392_group2_skincare_mobile.data.remote.api.AuthApiService
-import com.example.prm392_group2_skincare_mobile.data.remote.api.ChatAIApiService
-import com.example.prm392_group2_skincare_mobile.data.remote.api.CosmeticApiService
+import com.example.prm392_group2_skincare_mobile.data.remote.api.*
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonDeserializationContext
@@ -92,7 +90,6 @@ object RetrofitClient {
 
 
     // This custom OkHttpClient is built to trust all certificates.
-    // This is necessary for connecting to a local server with a self-signed dev certificate.
     private val okHttpClient: OkHttpClient by lazy {
         try {
             // Create a trust manager that does not validate certificate chains
@@ -122,6 +119,7 @@ object RetrofitClient {
                 .hostnameVerifier { _, _ -> true } // Trust all hostnames
                 .addInterceptor(loggingInterceptor)
                 .addInterceptor(authInterceptor) // Add our auth interceptor
+                .authenticator(TokenAuthenticator()) // **FIX: Add the token authenticator here.**
                 .build()
         } catch (e: Exception) {
             throw RuntimeException(e)
@@ -152,5 +150,17 @@ object RetrofitClient {
 
     val cosmeticApiService: CosmeticApiService by lazy {
         create(CosmeticApiService::class.java)
+    }
+
+    val cartApiService: CartApiService by lazy {
+        create(CartApiService::class.java)
+    }
+
+    val orderApiService: OrderApiService by lazy {
+        create(OrderApiService::class.java)
+    }
+    // Added GHN Api Service
+    val ghnApiService: GHNApiService by lazy {
+        create(GHNApiService::class.java)
     }
 }

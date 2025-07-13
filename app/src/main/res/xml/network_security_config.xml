@@ -6,4 +6,17 @@
         <!-- Allow cleartext traffic for local development using the Android Emulator loopback address -->
         <domain includeSubdomains="true">10.0.2.2</domain>
     </domain-config>
+
+    <!--
+      Explicitly define the security configuration for the VNPay sandbox domain.
+      This ensures that secure (HTTPS) connections to this domain are trusted,
+      which can help resolve networking issues in some environments.
+    -->
+    <domain-config>
+        <domain includeSubdomains="true">sandbox.vnpayment.vn</domain>
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </domain-config>
+
 </network-security-config>

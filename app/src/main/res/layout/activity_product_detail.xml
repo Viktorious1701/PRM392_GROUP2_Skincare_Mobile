@@ -15,7 +15,8 @@
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="0dp"
+        android:layout_weight="1">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -74,7 +75,7 @@
 
             </LinearLayout>
 
-            <!-- ADDED: Button to view the store location on the map -->
+            <!-- Button to view the store location on the map -->
             <Button
                 android:id="@+id/button_view_on_map"
                 android:layout_width="match_parent"
@@ -175,7 +176,14 @@
                 android:text="Origin..." />
 
         </LinearLayout>
-
     </ScrollView>
+
+    <Button
+        android:id="@+id/button_add_to_cart"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:text="Add to Cart"
+        android:backgroundTint="@color/primaryGreen"/>
 
 </LinearLayout>

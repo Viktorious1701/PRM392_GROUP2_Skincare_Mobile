@@ -1,3 +1,4 @@
+// PRM392_GROUP2_Skincare_Mobile/app/src/main/java/com/example/prm392_group2_skincare_mobile/ui/product_list/ProductListActivity.kt
 package com.example.prm392_group2_skincare_mobile.ui.product_list
 
 import android.content.Intent
@@ -14,8 +15,10 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.prm392_group2_skincare_mobile.R
+import com.example.prm392_group2_skincare_mobile.data.local.preferences.UserPreferences
 import com.example.prm392_group2_skincare_mobile.data.model.response.CosmeticResponse
 import com.example.prm392_group2_skincare_mobile.data.remote.RetrofitClient
+import com.example.prm392_group2_skincare_mobile.ui.auth.LoginActivity
 import com.example.prm392_group2_skincare_mobile.ui.cart.CartActivity
 import com.example.prm392_group2_skincare_mobile.ui.product_detail.ProductDetailActivity
 import kotlinx.coroutines.Dispatchers
@@ -156,7 +159,14 @@ class ProductListActivity : AppCompatActivity() {
                 true
             }
             R.id.action_cart -> {
-                startActivity(Intent(this, CartActivity::class.java))
+                // Check if user is logged in before opening the cart
+                if (UserPreferences.isLoggedIn()) {
+                    startActivity(Intent(this, CartActivity::class.java))
+                } else {
+                    // Prompt guest to log in
+                    Toast.makeText(this, "Please log in to view your cart", Toast.LENGTH_SHORT).show()
+                    startActivity(Intent(this, LoginActivity::class.java))
+                }
                 true
             }
             else -> super.onOptionsItemSelected(item)
