@@ -74,6 +74,16 @@
 
             </LinearLayout>
 
+            <!-- ADDED: Button to view the store location on the map -->
+            <Button
+                android:id="@+id/button_view_on_map"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="View Store on Map"
+                android:backgroundTint="@color/secondaryGreen"
+                android:visibility="gone" /> <!-- Initially hidden -->
+
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
