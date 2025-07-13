@@ -1,3 +1,4 @@
+// PRM392_GROUP2_Skincare_Mobile/app/src/main/java/com/example/prm392_group2_skincare_mobile/data/remote/RetrofitClient.kt
 package com.example.prm392_group2_skincare_mobile.data.remote
 
 import com.example.prm392_group2_skincare_mobile.data.remote.api.AuthApiService
@@ -18,14 +19,13 @@ import java.security.cert.X509Certificate
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import java.util.concurrent.TimeUnit
 import javax.net.ssl.SSLContext
 import javax.net.ssl.TrustManager
 import javax.net.ssl.X509TrustManager
 
 object RetrofitClient {
     // For local development with Android Emulator, use 10.0.2.2 to connect to your PC's localhost.
-    // The backend is running in a Docker container that exposes port 8080 to the host's port 8082.
-    // Therefore, the emulator must connect to port 8082 on the host.
     private const val BASE_URL = "https://10.0.2.2:5051/"
 
     // Custom Date Deserializer
@@ -54,7 +54,7 @@ object RetrofitClient {
                     // Continue to next format
                 }
             }
-            
+
             throw JsonParseException("Unable to parse date: $dateString")
         }
     }
@@ -90,29 +90,24 @@ object RetrofitClient {
                 level = HttpLoggingInterceptor.Level.BODY
             }
 
-            // Build the OkHttpClient with the SSL socket factory AND the logger
+            // Build the OkHttpClient with the SSL socket factory, logger, and increased timeouts
             OkHttpClient.Builder()
                 .sslSocketFactory(sslSocketFactory, trustAllCerts[0] as X509TrustManager)
                 .hostnameVerifier { _, _ -> true }
                 .addInterceptor(loggingInterceptor) // Add the logger here
+                .connectTimeout(30, TimeUnit.SECONDS) // Increased connect timeout to 30 seconds
+                .readTimeout(30, TimeUnit.SECONDS)    // Increased read timeout to 30 seconds
+                .writeTimeout(30, TimeUnit.SECONDS)   // Increased write timeout to 30 seconds
                 .build()
         } catch (e: Exception) {
             throw RuntimeException(e)
         }
     }
 
-    private val loggingInterceptor = HttpLoggingInterceptor().apply {
-        level = HttpLoggingInterceptor.Level.BODY
-    }
-
-    private val httpClient = OkHttpClient.Builder()
-        .addInterceptor(loggingInterceptor)
-        .build()
-
     private val retrofit: Retrofit by lazy {
         Retrofit.Builder()
             .baseUrl(BASE_URL)
-            .client(okHttpClient)
+            .client(okHttpClient) // Use the custom OkHttpClient
             .addConverterFactory(GsonConverterFactory.create(gson)) // Use custom Gson
             .build()
     }
@@ -122,7 +117,7 @@ object RetrofitClient {
         return retrofit.create(service)
     }
 
-    // Existing services for backward compatibility
+    // Existing services for backward compatibility (consider refactoring to use the generic create method)
     val chatAIApiService: ChatAIApiService by lazy {
         retrofit.create(ChatAIApiService::class.java)
     }
