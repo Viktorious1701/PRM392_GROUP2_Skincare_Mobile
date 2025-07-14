@@ -105,6 +105,9 @@
 
             </LinearLayout>
 
+            <!-- FIX: Added Button to view the store location on the map. -->
+            <!-- REASON: This button provides a direct way for users to see where the product is sold. -->
+            <!-- It's initially hidden and will be shown only if the product has associated store data. -->
             <Button
                 android:id="@+id/button_view_on_map"
                 android:layout_width="match_parent"

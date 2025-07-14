@@ -136,7 +136,9 @@ class ProductDetailActivity : AppCompatActivity() {
         productName.text = product.name
         productPrice.text = String.format("%,.0f VND", product.price)
         productRating.text = "★ ${product.rating?.let { "%.1f".format(it) } ?: "N/A"}"
-        productBrand.text = product.store?.name ?: "Unknown Brand"
+        // FIX: Use the product's brand name, not the store's name for the brand field.
+        // REASON: The 'brand' text view should show the product's brand. The store name is used for the map.
+        productBrand.text = product.name.split(" ")[0] // Heuristic to get brand name from product name
         productDescription.text = product.notice
         productIngredients.text = product.ingredients
         productInstructions.text = product.instructions
@@ -144,10 +146,14 @@ class ProductDetailActivity : AppCompatActivity() {
         productTexture.text = product.texture
         productOrigin.text = product.origin
 
+        // FIX: Check if the product's store information is available.
+        // REASON: This logic determines whether to show the "View Store on Map" button and what action to perform when it's clicked.
         if (product.store != null) {
             viewOnMapButton.visibility = View.VISIBLE
             viewOnMapButton.setOnClickListener {
+                // Create an intent to launch the MapActivity
                 val intent = Intent(this, MapActivity::class.java).apply {
+                    // Pass the necessary store data to the map activity.
                     putExtra("STORE_NAME", product.store.name)
                     putExtra("LATITUDE", product.store.latitude)
                     putExtra("LONGITUDE", product.store.longitude)
@@ -155,6 +161,7 @@ class ProductDetailActivity : AppCompatActivity() {
                 startActivity(intent)
             }
         } else {
+            // If there's no store data, ensure the button is hidden.
             viewOnMapButton.visibility = View.GONE
         }
 
